@@ -1,0 +1,9 @@
+PyQt5>=5.15
+opencv-python
+pillow
+pytesseract
+python-dotenv
+numpy
+requests
+fuzzywuzzy
+pynput

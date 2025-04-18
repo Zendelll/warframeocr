@@ -1,0 +1,15 @@
+*.pyc
+*.pyo
+*.sqlite3
+*.db
+*.log
+.idea/
+.vscode/
+__pycache__/
+.env
+ml/
+screenshots/
+dist/
+build/
+*.spec
+.venv/
