@@ -60,7 +60,6 @@ RELIC_SLOT={"x": 477,"y": 410,"width": 239,"height": 50,"space": 4}
 
 ## 🚧 WIP / Known Limitations
 
-- ❗ Currently works only when **4 relic rewards** are shown (not 3 or fewer)
 - 🔬 Inventory scanning is being integrated — will show extra info in the overlay
 - 🧭 Future overlay features planned:
   - Real overlay with info
