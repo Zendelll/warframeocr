@@ -1,4 +1,6 @@
 import sys
+import os
+import dotenv
 import threading
 from threading import Event
 from pynput import keyboard
@@ -9,24 +11,36 @@ from traceback import print_exc
 
 from app.db import init
 from app.update_db import update_db
-from app.inventory_scan import inventory_scan
 from app.relics.log_listener import watch_ee_log
 from app.relics.qt import process_overlay_queue
-
+from app.utils import change_last_relic_label
+from app.relics.ocr import screenshot
+from app.relics.relic_drop import main_logic
+dotenv.load_dotenv()
 app = QApplication([])
 stop_event = Event()
 overlay_relic_queue = Queue()
+model = None
 
 def on_press(key):
     try:
         if key == keyboard.Key.page_up:
-            print("[INFO] Page Up pressed — scanning inventory...")
-            threading.Thread(target=inventory_scan).start()
+            print("[INFO] Page Up pressed — Changing last relic to 3...")
+            threading.Thread(target=lambda: main_logic(overlay_relic_queue)).start()
+        elif key == keyboard.Key.page_down:
+            print("[INFO] Page Down pressed — Changing last relic to 2...")
+            threading.Thread(target=lambda: change_last_relic_label("relics_2")).start()
         elif key == keyboard.Key.home:
             print("[INFO] Home pressed — updating db...")
             threading.Thread(target=update_db).start()
-        elif key == keyboard.Key.page_down:
-            print("[INFO] Page Down pressed — exiting...")
+        elif key == keyboard.Key.insert:
+            print("[INFO] Insert pressed — screenshoting inventorty...")
+            threading.Thread(target=lambda: screenshot("inventory")).start()
+        elif key == keyboard.Key.delete:
+            print("[INFO] Delete pressed — screenshoting mastery...")
+            threading.Thread(target=lambda: screenshot("mastery")).start()
+        elif key == keyboard.Key.end:
+            print("[INFO] End pressed — exiting...")
             stop_event.set()
             app.quit()
             return False  # останавливает listener
@@ -42,6 +56,7 @@ def start_key_listener():
 
 
 if __name__ == "__main__":
+    print("[INFO] Starting app")
     init()
     queue_timer = QTimer()
     queue_timer.timeout.connect(lambda: process_overlay_queue(overlay_relic_queue))

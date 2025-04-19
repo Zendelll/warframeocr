@@ -17,7 +17,7 @@ def tail_lines(file_path, num_lines=20):
         f.seek(0, os.SEEK_END)
         buffer = bytearray()
         pointer = f.tell()
-        while pointer >= 0:  # ограничение в 8кб на чтение
+        while pointer >= 0:
             f.seek(pointer)
             read_byte = f.read(1)
             if read_byte == b"\n":
@@ -39,17 +39,20 @@ def watch_ee_log(stop_event, overlay_relic_queue):
                 time.sleep(1)
                 continue
 
-            recent_lines = tail_lines(EE_LOG_PATH, num_lines=200)
+            recent_lines = tail_lines(EE_LOG_PATH, num_lines=100)
             for line in recent_lines:
                 if KEY_PHRASE in line:
                     trigger_time = line.split()[0]
                     if trigger_time != last_trigger_time:
+                        print("[INFO] Relic rewards initialized")
                         last_trigger_time = trigger_time
-                        screenshot()
+                        #screenshot()
+                        time.sleep(0.5)
                         threading.Thread(
-                            target=main_logic, args=(overlay_relic_queue,)
+                            target= lambda: main_logic(overlay_relic_queue)
                         ).start()
+                        print("[INFO] Relic rewards logic stated")
         except Exception as e:
             print(f"[ERROR] {e}")
             print_exc()
-        time.sleep(1)
+        time.sleep(0.5)

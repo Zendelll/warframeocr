@@ -5,20 +5,24 @@ import os
 from dotenv import load_dotenv 
 from app.relics.ocr import extract_text_from_area
 from app.db import get_all_item_names, get_item
-from fuzzywuzzy import process, fuzz
+from rapidfuzz import process, fuzz
 from queue import Queue
+from ultralytics import YOLO
+from PyQt5.QtGui import QGuiApplication
+from PIL import ImageGrab
 
 load_dotenv()
-RELIC_SIZE = json.loads(os.getenv("RELIC_SIZE", '{"x": 477,"y": 410,"width": 239,"height": 50,"space": 4}'))
 DB_NAME = os.getenv("DB_NAME", "items.db")
+model = YOLO(os.getenv("MODEL_PATH", "ml/best.pt"))
 
 
-def correct_word(word, known_words, threshold=70):
-    if word == "":
-        return ""
-    result = process.extractBests(word, known_words, scorer=fuzz.token_sort_ratio)
-    print([word, result])
-    return result[0][0]
+def correct_word(word, known_words, threshold=60):
+    if word != "":
+        result = process.extractOne(word, known_words, scorer=fuzz.token_sort_ratio, score_cutoff=threshold)
+        if result:
+            print([word, result])
+            return result[0]
+    return ""
 
 
 def recognize_items(items_text, cursor) -> list[str]:
@@ -39,33 +43,43 @@ def recognize_items(items_text, cursor) -> list[str]:
     print("✅ Found:\n" + "\n".join(found))
     return found
 
+def recognize_item(item_name, cursor) -> list[str]:
+    if item_name != "":
+        item = get_item(item_name, cursor)[0]
+        if item:
+            text = f"""{item[1]}:
+    Price: {item[4]} platinum
+    Ducats: {item[3]}"""
+            print(f"✅ Found: {item[1]} Price: {item[4]} Ducats: {item[3]}")
+            return text
+    print("❌ Nothing found")
+    return "❌ Nothing found"
 
 def main_logic(overlay_relic_queue: Queue):
+    geometry = QGuiApplication.primaryScreen().geometry()
+    screenshot = ImageGrab.grab(bbox=(geometry.x(), geometry.y(), geometry.x() + geometry.width(), geometry.y() + geometry.height()))
+    results = model.predict(source=screenshot, conf=0.8)
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
         known_words = [item[0] for item in get_all_item_names(cursor)]
-        items_text = []
-        for i in range(4):
-            size = RELIC_SIZE.copy()
-            size["x"] += (size["width"] + size["space"]) * i
-            items_text.append(
-                correct_word(
+        windows = []
+        for box in results[0].boxes:
+            if box.conf.item() >= 0.8:
+                size = {}
+                sizes = box.xyxy[0].tolist()
+                size["x1"] = round(sizes[0])
+                size["y1"] = round(sizes[1])
+                size["x2"] = round(sizes[2])
+                size["y2"] = round(sizes[3])
+                item_name = correct_word(
                     re.sub(
                         r"(?<=[a-z])(?=[A-Z])",
                         " ",
-                        " ".join(extract_text_from_area(size).split()),
+                        " ".join(extract_text_from_area([size["x1"], size["y2"]-50, size["x2"], size["y2"]], screenshot).split()),
                     ),
                     known_words,
                 )
-            )
-        print(items_text)
-        items = recognize_items(items_text, cursor)
-        if not items:
-            return
-        windows = []
-        for index, item in enumerate(items):
-            size = RELIC_SIZE.copy()
-            size["x"] += (size["width"] + size["space"]) * index
-            windows.append((size, item))
+                item_text = recognize_item(item_name, cursor)
+                windows.append(((size["x1"], size["y2"]+100, size["x2"]-size["x1"], 200), item_text))
         overlay_relic_queue.put(windows)
     print("[Info] Added windows to queue")

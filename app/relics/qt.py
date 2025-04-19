@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 
 
-def create_overlay_window(size: dict, text: dict) -> QWidget:
+def create_overlay_window(size: tuple, text: dict) -> QWidget:
     window = QWidget()
     window.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
     window.setAttribute(Qt.WA_TranslucentBackground)
@@ -21,7 +21,7 @@ def create_overlay_window(size: dict, text: dict) -> QWidget:
     layout.setContentsMargins(10, 10, 10, 10)
     window.setLayout(layout)
 
-    window.setGeometry(size["x"] - 7, 600, 235, 200)
+    window.setGeometry(size[0], size[1], 235, 200)
     return window
 
 def process_overlay_queue(overlay_relic_queue):
