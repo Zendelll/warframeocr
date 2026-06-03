@@ -6,18 +6,18 @@
 
 ## ✨ Features
 
-- 📸 Automatically screenshots the game when a relic reward appears  
-- 🔎 Uses Tesseract OCR to extract item names from screen regions  
-- 📊 Fetches real-time Platinum prices and ducat values via Warframe APIs  
-- 💬 Displays compact overlay windows that appear above the game  
-- 🧠 Fuzzy matching ensures reliable recognition even with OCR errors  
-- ⌨️ Global hotkeys:
+- Automatically screenshots the game when a relic reward appears  
+- Uses Tesseract OCR to extract item names from screen regions  
+- Fetches real-time Platinum prices and ducat values via Warframe APIs  
+- Displays compact overlay windows that appear above the game  
+- Fuzzy matching ensures reliable recognition even with OCR errors  
+- Global hotkeys:
   - `Home` — update the local item database  
   - `PageDown` — cleanly exit the app  
 
 --
 
-## 📦 Installation
+## Installation
 
 1. Install the required Python packages:
 
@@ -40,7 +40,7 @@ python main.py
 
 --
 
-## ⚙️ .env Configuration
+## .env Configuration
 
 ```env
 # Path to your EE.log file
@@ -52,15 +52,15 @@ DB_NAME=items.db
 # Debug mode: enables screenshot saving
 DEBUG=True
 
-# Coordinates for the relic reward area (yep, it's hardcoded for now)
-RELIC_SLOT={"x": 477,"y": 410,"width": 239,"height": 50,"space": 4}
+# Path to YOLO model
+MODEL_PATH=best.pt
 ```
 
 --
 
-## 🚧 WIP / Known Limitations
+## WIP / Known Limitations
 
-- 🔬 Inventory scanning is being integrated — will show extra info in the overlay
-- 🧭 Future overlay features planned:
+- Inventory scanning is being integrated — will show extra info in the overlay
+- Future overlay features planned:
   - Real overlay with info
   - Rotation tracking
