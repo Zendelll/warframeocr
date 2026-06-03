@@ -4,7 +4,7 @@
 
 --
 
-## ✨ Features
+## Features
 
 - Automatically screenshots the game when a relic reward appears  
 - Uses Tesseract OCR to extract item names from screen regions  
