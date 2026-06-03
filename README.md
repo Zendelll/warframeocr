@@ -2,7 +2,7 @@
 
 **Warframe Relic Overlay** is a desktop companion app for Warframe that listens to the game's EE.log, captures your screen during relic reward selection, uses OCR to recognize item names, and displays an overlay with their current market value and ducat worth — right on top of your game, without interrupting your flow.
 
---
+
 
 ## Features
 
@@ -15,7 +15,7 @@
   - `Home` — update the local item database  
   - `PageDown` — cleanly exit the app  
 
---
+
 
 ## Installation
 
@@ -38,7 +38,7 @@ python main.py
 
 5. Press `Home` to update the item database, and you're ready to farm relics!
 
---
+
 
 ## .env Configuration
 
@@ -56,7 +56,7 @@ DEBUG=True
 MODEL_PATH=best.pt
 ```
 
---
+
 
 ## WIP / Known Limitations
 
